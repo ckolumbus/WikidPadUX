@@ -1,38 +1,9 @@
-﻿# -*- coding: utf-8 -*-
-"""
-    filemanager
-    
-    @summary: a file manager plugin for WikidPad to insert and maintain local
-              files from within WikidPad
-    @author: Chris Drexler
-    @date:   4-Mar-2012
-    @license: GPL
-    @version: 0.1.0
-        
-    @todo:
-        - allow multi selects
-        - add file drops on manager to insert files into file storage
-        - add function that "copy file" on drop utiles current directory
-          selection
-"""
-
-
-import wx
-import os
-import sys
-
-from pwiki.SystemInfo import isWindows
-from WikidPadStarter import VERSION_STRING
-
-WIKIDPAD_VERSION = VERSION_STRING[9:12]
-
-#----------------------------------------------------------------------
 """
     DirTreeCtrl
     
     @summary: A tree control for use in displaying directories
     @author: Collin Green aka Keeyai
-    @url: http://keeyai.com, http://keeyai.com/2008/02/18/dirtreectrl-wxpython-tree-widget-for-directories/
+    @url: http://keeyai.com
     @license: public domain -- use it how you will, but a link back would be nice
     @version: 0.9.0
     @note:
@@ -54,17 +25,16 @@ WIKIDPAD_VERSION = VERSION_STRING[9:12]
         
     @todo:
         extract ico from exes found in directory
-
-    @changes:
-        - added "Directory" info also to files
-        - added 'name' parameter to SetRootDir (for shorter display)
 """
+
+import wx, os
 
 class Directory:
     """Simple class for using as the data object in the DirTreeCtrl"""
     __name__ = 'Directory'
     def __init__(self, directory=''):
         self.directory = directory
+
 
 class DirTreeCtrl(wx.TreeCtrl):
     """A wx.TreeCtrl that is used for displaying directory structures.
@@ -85,11 +55,17 @@ class DirTreeCtrl(wx.TreeCtrl):
         
         # some hack-ish code here to deal with imagelists
         self.iconentries = {}
-        self.imagelist = wx.ImageList(16,16)
+        isz = (16,16)
+        self.imagelist = wx.ImageList(isz[0], isz[1])
 
-        # blank default
-        self.iconentries['default'] = -1
-        self.iconentries['directory'] = -1
+
+        ## blank default
+        #self.iconentries['default'] = -1
+        #self.iconentries['directory'] = -1
+        self.iconentries['directory'] = self.imagelist.Add(wx.ArtProvider_GetBitmap(wx.ART_FOLDER,      wx.ART_OTHER, isz))
+        self.iconentries['default']   = self.imagelist.Add(wx.ArtProvider_GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, isz))
+        #self.fldropenidx = self.imagelist.Add(wx.ArtProvider_GetBitmap(wx.ART_FILE_OPEN,   wx.ART_OTHER, isz))
+        #smileidx    = self.imagelist.Add(images.Smiles.GetBitmap())
         
 ##        # you should replace this with your own code or put the relevant images in the correct path
 ##        # set directory image
@@ -129,7 +105,7 @@ class DirTreeCtrl(wx.TreeCtrl):
         # check if directory exists and is a directory
         if not os.path.isdir(directory):
             raise Exception("%s is not a valid directory" % directory)
-       
+        
         if not name:
             name = directory
 
@@ -161,7 +137,7 @@ class DirTreeCtrl(wx.TreeCtrl):
             # get files in directory
             files = os.listdir(directory)
 
-            # add nodes to tree
+            # add dir nodes to tree
             for f in files:
                 # process the file extension to build image list
                 imagekey = self.processFileExtension(os.path.join(directory, f))
@@ -176,9 +152,20 @@ class DirTreeCtrl(wx.TreeCtrl):
                     # save item path for expanding later
                     self.SetPyData(child, Directory(os.path.join(directory, f)))
 
-                else:
+            # add file nodes to tree
+            for f in files:
+                # process the file extension to build image list
+                imagekey = self.processFileExtension(os.path.join(directory, f))
+
+                # if directory, tell tree it has children
+                if not os.path.isdir(os.path.join(directory, f)):
+                    
+                    # add item to
                     child = self.AppendItem(item, f, image=imagekey)
+
+                    # save item path for expanding later
                     self.SetPyData(child, Directory(os.path.join(directory, f)))
+
 
     def getFileExtension(self, filename):
         """Helper function for getting a file's extension"""
@@ -280,103 +267,3 @@ class DirTreeCtrl(wx.TreeCtrl):
             self.DeleteChildren(item)
             
         event.Skip()
-
-#----------------------------------------------------------------------
-
-
-# ////////////////////   
-#   Helper functions
-# \\\\\\\\\\\\\\\\\\\\
-
-
-def check_wikidpad_version():
-    """ Checks if we are running on Wikidpad 1.9 """
-    if WIKIDPAD_VERSION == '1.9':
-        dlg = wx.MessageDialog(None, 'This version of File Manager  plugin is not compatible with Wikidpad 1.9.', 
-                               'File Manager', style=wx.OK | wx.ICON_EXCLAMATION)
-        dlg.ShowModal()
-        return(True)
-
-# //////////////////////   
-#    WIKIDPAD HOOKS
-# \\\\\\\\\\\\\\\\\\\\\\
-
-# Descriptor for File Manager plugin
-WIKIDPAD_PLUGIN = (('MenuFunctions',1),('Options', 0))
-
-
-# /// Register menu item \\\
-def describeMenuItems(wiki):
-    keybindings = wiki.getKeyBindings()
-
-    kb = keybindings.FileManager
-    if kb == '':
-        kb = u'Ctrl-Alt-M'
-
-    return ((file_manager, u'File Manager' + u'\t' + kb , ''),)
-
-
-
-# /////////////////////
-#   File Manager frame 
-# \\\\\\\\\\\\\\\\\\\\\
-
-
-class FileManager(wx.Frame):
-    def __init__(self, wiki):
-        wx.Frame.__init__(self, wiki, -1, "File Manager", size=(250, 650),
-                          name='file_manager_window_frame' )
-
-        self.tree = DirTreeCtrl(self)
-        self.tree.SetRootDir(
-            os.path.abspath(
-                os.path.join(os.path.dirname(wiki.getWikiConfigPath()), 'files')
-            ),"Wiki Files"
-        )
-
-        self.Bind(wx.EVT_TREE_BEGIN_DRAG, self.OnDirCtrlDragInit, id=self.tree.GetId())
-        self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelect, id=self.tree.GetId())
-
-        self.OnSelect(0)
-        self.Centre()
-        self.Show(True)
-
-    def OnSelect(self, event):
-        return
-
-    def OnDirCtrlDragInit(self, event):
-        f = None
-        item = self.tree.GetSelection()
-        f = self.tree.GetPyData(item).directory
-
-        tdo = wx.FileDataObject()
-        tdo.AddFile(f)
-        tds = wx.DropSource(self.tree)
-        tds.SetData(tdo)
-        tds.DoDragDrop(True)
-
-
-# ///////////////////////////////////////
-#    Main function called by Wikidpad 
-# \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-def file_manager(wiki, evt):
-
-    """ File Manager main function called by WikidPad """ 
-
-    # Check compatible versions
-    #if check_wikidpad_version():
-    #    return
-
-    file_manager_window = wiki.FindWindowByName('file_manager_window_frame')
-
-    if  file_manager_window is not None:
-        file_manager_window.Raise()
-        return
-
-    file_manager_window = FileManager(wiki)
-    file_manager_window.Show()
-    file_manager_window.Raise() 
-
-
-#EOF
