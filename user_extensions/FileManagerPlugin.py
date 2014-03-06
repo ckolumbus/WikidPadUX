@@ -77,8 +77,13 @@ def file_manager(wiki, evt):
     if  file_manager_window is not None:
         file_manager_window.Raise()
         return
+    froot = os.path.abspath(
+                os.path.join(os.path.dirname(wiki.getWikiConfigPath()), 'files')
+            )
+    if not os.path.isdir(froot):
+       os.mkdir(froot)
 
-    file_manager_window = FileManager(wiki, '/home/chris', "Wiki File")
+    file_manager_window = FileManager(wiki, froot, "Wiki Files")
     file_manager_window.Show()
     file_manager_window.Raise() 
 
