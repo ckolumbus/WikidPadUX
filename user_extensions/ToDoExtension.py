@@ -658,6 +658,7 @@ class Todo:
                 
         ''' this definition was moved to here from below, changed here ! '''
         dateChecks = [
+                       ( compile("[0-9]{8}$"),                          "yyyymmdd", ),   # compressed date format
                        ( compile("[0-9]{4}-[0-1][0-9]-[0-3][0-9]$"),    "yyyy-mm-dd" ),  # specific date; ISO
                        ( compile("[0-1][0-9]/[0-3][0-9]/[0-9]{4}$"),    "mm/dd/yyyy" ),  # specific date; US
                        ( compile("[0-3][0-9].[0-1][0-9].[0-9]{4}$"),    "dd.mm.yyyy" ),  # specific date; Germany etc.
