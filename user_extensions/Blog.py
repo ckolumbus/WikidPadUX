@@ -53,9 +53,9 @@ WIKIDPAD_PLUGIN = (("MenuFunctions",1),)
 BLOG_TEMPLATE    = u"BlogEntryTemplate"
 INSERT_DATE_HERE = u"INSERTDATEHERE"
 ENTRY_LIST       = u"ENTRY LIST"
-LOG_BOOK         = u"LogBook"
+LOG_BOOK         = u"BlogBook"
 BLOGGER_HELP     = u"BloggerHelp"
-CURRENT_VERSION  = u"1.0.5"
+CURRENT_VERSION  = u"1.0.5cd1"
 BLOG_HELP_PROP   = u"blog.help"
 BLOGGER_VERSION  = u"Blogger v" + CURRENT_VERSION + " 2008-12-02"
 
@@ -272,7 +272,7 @@ def editBlogEntry( wiki, blogDate ):
     month = blogDate.GetMonth()
     day   = blogDate.GetDay()
 
-    name = blogDate.FormatISODate()
+    name = "Blog " + blogDate.FormatISODate()
     blog_prop  = "blog." + str(year)
     blog_value = "%02d" % (month+1)
 
