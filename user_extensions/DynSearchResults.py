@@ -188,9 +188,12 @@ def extractSections(wikiDocument, regexpString, curWikiWord):
         # since the text was contained in a dynamic search results area, so
         # we only print when we're sure we've got results
         if len(results) > 0:
-            returnStr += "\n*From *[" + resultWord + "]:\n" \
-                    + "----\n".join(results) \
-                    + "----\n"
+            returnStr += "\n*From *[//" + resultWord + "]:\n" \
+                   + "----\n".join(results) \
+                   + "----\n"
+            #returnStr += "\n*From *[//" + resultWord + "]:\n\n" \
+            #        + text + "\n\n" \
+            #        + "----\n"
 
     return returnStr
 
@@ -206,12 +209,10 @@ def createContentBase(exporter, regexpString, title):
         wikiDataManager = exporter.wikiDataManager
     elif hasattr(exporter, "getWikiDataManager"):
         wikiDataManager = exporter.getWikiDataManager()
+    elif hasattr(exporter, "getWikiDocument"):
+        wikiDataManager = exporter.getWikiDocument()
     else:
-        pwf = wx.GetApp().GetTopWindow()
-        if hasattr(pwf, 'getWikiDataManager'):
-            wikiDataManager = pwf.getWikiDataManager()
-        else:
-            return "Error: dynsearch could not be performed (no pointer to WikiDataManager)."
+        return "Error: dynsearch could not be performed (no pointer to WikiDataManager)."
 
     exportedWikiWord = None
 
