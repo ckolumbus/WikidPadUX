@@ -50,6 +50,11 @@ Currently base: WikidPad 2.3beta12
 
  * `CKolHtmlExporter.py`: based on `extensions/HtmlExporter.py`
  * `CKolWikidPadParser.py` : from `extensions/wikidPadParser/WikidPadParser.py`
+ * `CKolHtmlEntityStrings.py`: my addition to list mapping from strings to entities 
+
+Interestingly the `CKolHtmlExporter` seems to replaces the internal default one. Therefore the preview
+and standard export already uses the string-to-entity replacement without further actions.
+I haven't figured out the detailed workings but for now this is OK for me :-).
 
 
 Add-In Base Versions
