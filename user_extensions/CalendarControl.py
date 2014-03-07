@@ -23,10 +23,11 @@ See http://calendarcontrol.wikidot.com/ for more information, latest revision an
 
 # Scintilla/wxPython editor reference: http://www.yellowbrain.com/stc/index.html
 
+import locale
 import re, urllib, string, datetime, calendar, wx.stc, operator
 # from pwiki.StringOps import mbcsEnc, mbcsDec
-
 WIKIDPAD_PLUGIN = (("MenuFunctions",1), ("ToolbarFunctions",1), ("hooks", 1),)
+
 
 # ---------- initialize global variables --------
 
@@ -52,6 +53,12 @@ _yearRE = re.compile(ur'Y(19|20)[0-9]{2}')
 # ----- calendar control ------------------------
 # ---------- menu & toolbar items ---------------
 
+cp="ISO-8859-1"
+
+def my_unicode(s):
+    global cp
+    return unicode(s, cp)
+
 def describeMenuItems(wiki):
 	global nextNumber
 	return ((GotoToday, u"Goto Today\tCtrl-Alt-T", u"Goto Today", "select"), (RefreshPage, u"Refresh Page\tF5", u"Refresh Page", ["refresh", "twirl"]), )
@@ -74,7 +81,7 @@ def GotoToday(pwiki, evt):
 		if pageType == u'w':
 			pageName = weekFormat(today)
 		elif pageType == u'm':
-			pageName = today.strftime(monthFormat)
+			pageName = my_unicode(today.strftime(monthFormat))
 		elif pageType == u'y':
 			pageName = today.strftime(yearFormat)
 		else: 
@@ -426,7 +433,7 @@ def datePrevUpNext(wikidPad, wikiWord):
 				upLink = u'[' + isoWeek + u'|Week ' + unicode(isoDay[1]) + u'] | '
 		upLink = upLink + thisDay.strftime(upFormat)
 		# collect navLinks
-		navLinks = [unicode(prevLink), unicode(upLink), unicode(nextLink), unicode(prevDay.strftime(dateFormat)), unicode(isoWeek), unicode(thisDay.strftime(monthFormat)), unicode(nextDay.strftime(dateFormat))]
+		navLinks = [unicode(prevLink), my_unicode(upLink), unicode(nextLink), unicode(prevDay.strftime(dateFormat)), unicode(isoWeek), unicode(thisDay.strftime(monthFormat)), unicode(nextDay.strftime(dateFormat))]
 	else: 
 		navLinks = [u'error', u'error', u'error']
 	return navLinks
@@ -547,7 +554,7 @@ def makeMonthPage(wikidPad, wikiWord):
 	writes skeletal structure for a new month page
 	"""
 	calendar.setfirstweekday(calendar.SUNDAY)
-	monthName = unicode(calendar.month_name[int(wikiWord[5:])])
+	monthName = my_unicode(calendar.month_name[int(wikiWord[5:])])
 	templateWord = getMonthTemplate(wikidPad)
 	editor = wikidPad.getActiveEditor()
 	editor.GotoPos(editor.GetLineEndPosition(0))
@@ -1031,7 +1038,7 @@ def dynamicArchive(wikidPad, wikiWord):
 			i = y[0]
 			word = u'Y' + y[0]
 			editor.AddText(u'\t'+bracketWord(wikidPad, word)+u'\n')
-		word = unicode(y[0])+u'-'+unicode(y[1])+u'|'+calendar.month_name[int(y[1])]+u' '+unicode(y[0])
+		word = unicode(y[0])+u'-'+unicode(y[1])+u'|'+my_unicode(calendar.month_name[int(y[1])])+u' '+unicode(y[0])
 		editor.AddText(u'\t'+bracketWord(wikidPad, word)+u'\n')
 	editor.AddText(u'\n')
 	# append props if none
@@ -1084,7 +1091,7 @@ def checkCurrentPages(wikidPad):
 		output = output + u'- It is a new Year\n'
 	# open dialog box if applicable
 	if dialog:
-		wikidPad.stdDialog('o', u'wikidPad Calendar Control', output)
+		pass # wikidPad.stdDialog('o', u'wikidPad Calendar Control', output)
 	return
 
 # ----- /calendar control -----------------------
@@ -1170,6 +1177,7 @@ def openedWikiWord(wikidPad, wikiWord):
 	wikiWord -- name of the wiki word
 	"""
 	global thisWikiWord, isNewWikiWord, pageType, prevDay, thisDay, nextDay, dayZero, _dateRE, _weekRE, _monthRE, dateFormat, onOpenedWiki
+        locale.setlocale(locale.LC_ALL, "english")
 	if ccCheckEnabled(wikidPad):
 		# reset values
 		prevDay = thisDay = nextDay = dayZero
