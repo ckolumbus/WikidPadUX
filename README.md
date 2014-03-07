@@ -1,5 +1,5 @@
-Chris' WikidPad User Extenstions
-================================
+Chris' WikidPad User Extensions
+===============================
 All extension listed here are for [WikidPad](http://wikidpad.sourceforge.net), simply the best personal wiki around!
 
 As I don't find much time to develop stuff completly from scratch I usally base it on existing work. Add-in's developed based on others work are listed here together with the references on where to find them and on which original version I based my work on.
