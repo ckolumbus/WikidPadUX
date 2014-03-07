@@ -25,6 +25,8 @@ from pwiki import StringOps, Serialization
 from pwiki.WikiPyparsing import StackedCopyDict, SyntaxNode, buildSyntaxNode
 from pwiki.TempFileSet import TempFileSet
 
+from CKolHtmlEntityStrings import *
+
 from pwiki.SearchAndReplace import SearchReplaceOperation, ListWikiPagesOperation, \
         ListItemWithSubtreeWikiPagesNode
 
@@ -42,7 +44,7 @@ def describeExportersV01(mainControl):
     """
     Return sequence of exporter classes.
     """
-    return (HtmlExporter,)
+    return (CKolHtmlExporter,)
 
 
 
@@ -416,7 +418,7 @@ class TableCell(object):
 
 # TODO UTF-8 support for HTML? Other encodings?
 
-class HtmlExporter(AbstractExporter):
+class CKolHtmlExporter(AbstractExporter):
     def __init__(self, mainControl):
         """
         mainControl -- PersonalWikiFrame object. Part of "Exporters" plugin API
@@ -2545,6 +2547,12 @@ class HtmlExporter(AbstractExporter):
 
         elif tname == "htmlTag" or tname == "htmlEntity":
             self.outAppend(node.getString())
+        elif tname == "htmlEntityStr":
+            try:
+                out = htmlEntityStrings[node.getString()]
+            except:
+                out = node.getString()
+            self.outAppend(out)
         elif tname == "htmlEquivalent":
             htmlContent = node.htmlContent
             if isinstance(htmlContent, HtmlStartTag):

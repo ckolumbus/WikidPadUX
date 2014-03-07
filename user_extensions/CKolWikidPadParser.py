@@ -19,6 +19,8 @@ from pwiki.StringOps import UPPERCASE, LOWERCASE, revStr
 from pwiki.WikiDocument import WikiDocument
 from pwiki.OptionsDialog import PluginOptionsPanel
 
+from CKolHtmlEntityStrings import *
+
 sys.stderr = sys.stdout
 
 locale.setlocale(locale.LC_ALL, '')
@@ -28,8 +30,8 @@ from pwiki.WikiPyparsing import *
 
 WIKIDPAD_PLUGIN = (("WikiParser", 1),)
 
-WIKI_LANGUAGE_NAME = "wikidpad_default_2_0"
-WIKI_HR_LANGUAGE_NAME = u"WikidPad default 2.0"
+WIKI_LANGUAGE_NAME = "wikidpad_default_2_0_ckol_1"
+WIKI_HR_LANGUAGE_NAME = u"WikidPad default 2.0 (CKol v1)"
 
 
 LETTERS = UPPERCASE + LOWERCASE
@@ -225,7 +227,10 @@ horizontalLine = buildRegex(ur"----+[ \t]*$", "horizontalLine")\
 
 htmlTag = buildRegex(ur"</?[A-Za-z][A-Za-z0-9:]*(?:/| [^\n>]*)?>", "htmlTag")
 
-htmlEntity = buildRegex(
+htmlEntityStrings = buildRegex(regHtmlEntityStrings, "htmlEntityStr") # + buildRegex(ur"(?:\s)")
+#htmlEntityStrings = htmlEntityStrings.setResultsNameNoCopy("htmlEntityStr").setParseAction(actionHtmlEntityStr)
+
+htmlEntity = htmlEntityStrings | buildRegex( 
         ur"&(?:[A-Za-z0-9]{2,10}|#[0-9]{1,10}|#x[0-9a-fA-F]{1,8});",
         "htmlEntity")
 
@@ -259,7 +264,7 @@ def actionTodoEntry(s, l, st, t):
 
 
 todoKey = buildRegex(ur"\b(?:todo|done|wait|action|track|issue|"
-        ur"question|project)(?:\.[^:\s]+)?", "key")
+        ur"question|project|decision)(?:\.[^:\s]+)?", "key")
 # todoKey = todoKey.setParseStartAction(preActCheckNothingLeft)
 
 todoEnd = buildRegex(ur"\n|\||(?!.)")
@@ -768,11 +773,11 @@ WikiWordCcPAT = (ur"(?:[" +
         ur"]+)")
 
 
-UrlPAT = ur'(?:(?:https?|ftp|rel|wikirel)://|mailto:|Outlook:\S|wiki:/|file:/)'\
+UrlPAT = ur'(?:(?:https?|ftp|rel|wikirel|ea)://|mailto:|Outlook:\S|wiki:/|file:/)'\
         ur'(?:(?![.,;:!?)]+(?:["\s]|$))[^"\s|\]<>])*'
 
 
-UrlInBracketsPAT = ur'(?:(?:https?|ftp|rel|wikirel)://|mailto:|Outlook:\S|wiki:/|file:/)'\
+UrlInBracketsPAT = ur'(?:(?:https?|ftp|rel|wikirel|ea)://|mailto:|Outlook:\S|wiki:/|file:/)'\
         ur'(?:(?![ \t]+[|\]])(?: |[^"\s|\]<>]))*'
 
 
@@ -901,7 +906,6 @@ def actionExtractableWikiWord(s, l, st, t):
         t.wikiWord = t.wikiWord.getString()
 
 
-
 def actionUrlLink(s, l, st, t):
     if t.name == "urlLinkBare":
         t.bracketed = False
@@ -995,9 +999,18 @@ urlTitled = bracketStart + urlWithAppendInBrackets + whitespace + \
 urlTitled = urlTitled.setResultsNameNoCopy("urlLinkBracketed").setParseAction(actionUrlLink)
 
 
+Bracket2StartPAT = ur"\["
+Bracket2MidPAT = ur"\]\("
+Bracket2EndPAT = ur"\)"
 
-urlRef = urlTitled | urlBare
+bracket2Start = buildRegex(Bracket2StartPAT)
+bracket2Mid   = buildRegex(Bracket2MidPAT)
+bracket2End   = buildRegex(Bracket2EndPAT)
 
+urlTitledPrefix = bracket2Start + titleContent + bracket2Mid + urlWithAppend +  bracket2End
+urlTitledPrefix = urlTitledPrefix.setResultsNameNoCopy("urlLinkBracketed").setParseAction(actionUrlLink)
+
+urlRef = urlTitled | urlTitledPrefix | urlBare
 
 # TODO anchor/fragment
 wikiWordCc = buildRegex(ur"\b(?<!~)" + WikiWordCcPAT + ur"\b", "word") + \
