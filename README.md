@@ -111,7 +111,7 @@ Author: Bill Wilkinson
  * [DynSearchResults.py](http://www.fsavard.com/flow/wikidpad-dynamic-search-results/) - 
 Version: 2008.10.22,
 Author: François Savard
- * [WikidpadInterWiki.py](trac.wikidpad2.webfactional.com/wiki/WikidpadInterWiki) -
+ * [WikidpadInterWiki.py](http://trac.wikidpad2.webfactional.com/wiki/WikidpadInterWiki) -
 Version: 2011-12-16 (wiki change date)
 Author: M. Butscher(?)
  * [TodoExtension.py](http://www.ziemski.net/wikidpad/todo_extension.html) - 
