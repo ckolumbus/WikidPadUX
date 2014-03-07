@@ -4,6 +4,15 @@ All extension listed here are for [WikidPad](http://wikidpad.sourceforge.net), s
 
 As I don't find much time to develop stuff completly from scratch I usally base it on existing work. Add-in's developed based on others work are listed here together with the references on where to find them and on which original version I based my work on.
 
+HowTo Use
+---------
+
+My personal usage is to clone this repository next to my WikidPad.git repository (checkedout via
+the `git svn` command) and [symlink](http://schinagl.priv.at/nt/hardlinkshellext/hardlinkshellext.html) the `user_extensions` directory from the `WikidPadUX` to the `WikidPad` repo.
+
+As an alternative just copy the individual files into your local WikdPad `user_extensions` 
+directory.
+
 
 Open Wishlist
 -------------
@@ -50,6 +59,11 @@ Currently base: WikidPad 2.3beta12
 
  * `CKolHtmlExporter.py`: based on `extensions/HtmlExporter.py`
  * `CKolWikidPadParser.py` : from `extensions/wikidPadParser/WikidPadParser.py`
+ * `CKolHtmlEntityStrings.py`: my addition to list mapping from strings to entities 
+
+Interestingly the `CKolHtmlExporter` seems to replaces the internal default one. Therefore the preview
+and standard export already uses the string-to-entity replacement without further actions.
+I haven't figured out the detailed workings but for now this is OK for me :-).
 
 
 Add-In Base Versions
