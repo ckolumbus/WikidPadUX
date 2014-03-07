@@ -24,6 +24,37 @@ Things I want but maybe didn't even start
   * export to HTML5/CSS presentation format (dzSlides, S3reloaded)
 
 
+
+Changes to existing Add-Ins
+---------------------------
+
+For a list of links to the original add-in see below.
+
+DynSearchResults
+  * fixed the access to the wikiDataManager for newer WikidPad Versions
+    
+CalendarControl
+  * as I'm in germany some month names have diaeresis in it and that causes
+    problems.  As a workaround I hardcoded the english locale within the add-in
+    which is fine for me. Maybe someone else can propse a better solution.
+                        
+
+InterWikiLinks 
+  * I added the functionality to keep the interwiki link
+    mapping in an external YAML file instead of having it
+    hardcoded within the add-in. It will be automatically
+    created within the `GlobalConfigSubDir` if it doesn't
+    exist yet. There are some examples listed and the file
+    can then be edded with any text editor. The format
+    should be obvious from the examples.
+
+Blog
+  * added 'Blog ' to each page name to avoid clash with the CalendarControl
+    addin
+
+TodoExtension
+  * added 'yyyymmdd' date format 
+
 Own Development
 ---------------
 
