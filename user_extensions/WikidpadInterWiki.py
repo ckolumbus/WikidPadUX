@@ -1,6 +1,40 @@
-import os, urllib
+"""
+= InterWiki inside WikidPad =
+Wouldn't you like to use a proper InterWiki syntax in your WikidPad?
 
+Means - have Shortcuts for URLs outside your WikidPad (types: http, file, etc...), based on your "interwiki map"
+See Also (explanations on what is interwiki and examples of usage):
+ * http://en.wikipedia.org/wiki/Interwiki
+ * http://en.wikipedia.org/wiki/Help:Interwiki_linking
+ * http://moinmoin.wikiwikiweb.de/InterWiki
+ * And even in Trac: InterWiki
+
+All you have to do is Add a file named interWiki.py to your user_extensions.
+
+How to use:
+
+Add in a page (example):
+{{{
+[:interwiki:Wikibooks;///C++_Programming/Code/Design_Patterns///]
+[:interwiki:Wikipedia;///Design_pattern_(computer_science%29///]
+}}}
+
+In "Preview" you will see:
+{{{
+Wikibooks: C++_Programming/Code/Design_Patterns 
+Wikipedia: Design_pattern_(computer_science) 
+}}}
+When the text above is linked to the desired target.
+Note: There is some problem with closing (right) paren - no way to keep it inside the link...
+
+"""
+
+import os, urllib
 import wx
+from yaml import load,dump
+
+
+from Consts import CONFIG_GLOBALS_DIRNAME
 
 WIKIDPAD_PLUGIN = (("InsertionByKey", 1),)
 
@@ -33,6 +67,31 @@ class InterWikiHandler:
      """
      def __init__(self, app):
          self.app = app
+         self.configFileName = os.path.join(app.getGlobalConfigSubDir(),"InterWiki.yml" )
+         self.interwiki_map = {}
+         # shortcut for wikis located in dataDir
+         self.dataWikiPrefix="dwiki://" 
+         # try to load yaml config file from GlobalConfigSubDir
+         try:
+            # http://effbot.org/zone/python-with-statement.htm
+            # with is more safe to open file
+            with open(self.configFileName,'r') as fh:
+                self.interwiki_map = load(fh)
+         except :
+         # ... if it's not found, set to default ...
+             self.interwiki_map={
+                     'Google':"http://www.google.com/search?q=",
+                     'Wikipedia':"http://en.wikipedia.org/wiki/",
+                     'WikipediaCategory':"http://en.wikipedia.org/wiki/Category:",
+                     'Wikibooks':"http://en.wikibooks.org/wiki/",
+
+                     'OtherWiki':'wiki:///C:/tmp/OtherWiki/OtherWiki.wiki?page=',
+                     'YetAnotherWiki':'dwiki://YetAnotherWiki'
+                     }
+         # ... and store as example to disk
+             with open(self.configFileName,'w') as fh:
+                dump(self.interwiki_map, fh, default_flow_style=False)
+
 
      def taskStart(self, exporter, exportType):
          """
@@ -83,21 +142,32 @@ class InterWikiHandler:
              mydir=mydir.replace(':\\',':/').replace(' ','%20').replace('\\','/').replace(remove_me,'')
              return "wiki:///"+mydir+"/"+input+"/"+input+".wiki?page="
 
-         interwiki_map={
-                 'Google':"http://www.google.com/search?q=",
-                 'Wikipedia':"http://en.wikipedia.org/wiki/",
-                 'WikipediaCategory':"http://en.wikipedia.org/wiki/Category:",
-                 'Wikibooks':"http://en.wikibooks.org/wiki/",
+         # param
+         params=u""
+         for i, apx in enumerate(insToken.appendices):
+             params += "%s" % (apx)
+         nice_params=unicode(params).replace("%20"," ").replace("%28","(").replace("%29",")")
 
-                 'OtherWiki':gen_wikiPath(exporter,'OtherWiki')
-                 }
-         for prefix,myurl in interwiki_map.iteritems():
+         result = None
+
+         #'OtherWiki':gen_wikiPath(exporter,'wiki://OtherWiki')
+         for prefix,myurl in self.interwiki_map.iteritems():
+             # wiki result string
+
              if insToken.value == prefix:
-                 params=u""
-                 for i, apx in enumerate(insToken.appendices):
-                     params += "%s" % (apx)
-                 nice_params=unicode(params).replace("%20"," ").replace("%28","(").replace("%29",")")
-                 result = "["+myurl+params+" | "+prefix+": "+nice_params +"]"
+
+                 if myurl[:len(self.dataWikiPrefix)] == self.dataWikiPrefix:
+                     myurl = gen_wikiPath(exporter, myurl[len(self.dataWikiPrefix):])
+                 result = "["+myurl+params+" | "+prefix
+                 if len(params) > 0:
+                     result += ": "+nice_params +"]"
+                 else:
+                     result += "]"
+                 break
+
+         if result is None :
+             result = "*InterwikiLink*: '%s/%s' " % (insToken.value , params)
+
          return result
 
 
@@ -107,3 +177,4 @@ class InterWikiHandler:
          by the plugin. Currently not specified further.
          """
          return ()
+
