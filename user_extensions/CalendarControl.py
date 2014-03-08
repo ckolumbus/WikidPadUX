@@ -1177,7 +1177,10 @@ def openedWikiWord(wikidPad, wikiWord):
 	wikiWord -- name of the wiki word
 	"""
 	global thisWikiWord, isNewWikiWord, pageType, prevDay, thisDay, nextDay, dayZero, _dateRE, _weekRE, _monthRE, dateFormat, onOpenedWiki
-        locale.setlocale(locale.LC_ALL, "english")
+        try:
+            locale.setlocale(locale.LC_ALL, "english")
+        except:
+            pass
 	if ccCheckEnabled(wikidPad):
 		# reset values
 		prevDay = thisDay = nextDay = dayZero
