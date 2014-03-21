@@ -303,7 +303,7 @@ def editBlogEntry( wiki, blogDate ):
         # Customize the new instance of the blog entry
         template = template.replace( BLOG_TEMPLATE, name )
         template = template.replace( INSERT_DATE_HERE, "["+blog_prop+":"+blog_value+"]" )
-        template = template + "\n\n" + BLOGGER_VERSION
+        #template = template + "\n\n" + BLOGGER_VERSION
         wiki.getWikiDocument().getWikiPageNoError(name).replaceLiveText(template)
     # Link in, just in case it isn't there already
     linkToLogBook( wiki, blogDate, name )
@@ -443,6 +443,7 @@ The most typical customization is to change the BlogEntryTemplate. This will cha
 The blog software is driven from invoking either of the two menu items. When attempting to edit a blog page, the software attempts to copy the BlogEntryTemplate. If it can not be found, it will create the template from a basic built in format. The software also will add a link from the file LogBook. Linking to LogBook keeps each blog entry from showing up in the parentless view.
 
 *Change Log*
+    *    cd1 - 'Blog' prefix added to page name
     * V1.0.5 - Use proper coding for page creation, fix Linux regression
     * V1.0.4 - Fixed a defect with tree view update
     * V1.0.3 - Fixed a defect (createHelpFile) on a brand new Wiki"
