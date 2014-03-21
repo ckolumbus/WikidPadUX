@@ -292,7 +292,7 @@ def editBlogEntry( wiki, blogDate ):
 
     # If the page is NOT a proper BLOG, load up the content from the template.
     if( load_content ):
-        print "Filling in blog entry " + name 
+        #print "Filling in blog entry " + name 
         try:
             template = wiki.getWikiData().getContent( BLOG_TEMPLATE )
 #        except WikiFileNotFoundException:
