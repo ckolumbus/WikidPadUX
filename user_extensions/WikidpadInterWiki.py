@@ -58,7 +58,7 @@ def describeInsertionKeys(ver, app):
      ver -- API version (can only be 1 currently)
      app -- wxApp object
      """
-     return ((u"interwiki", ("wikidpad_language",), InterWikiHandler),)
+     return ((u"interwiki", ("wikidpad_language",), InterWikiHandler),(u"iw", ("wikidpad_language",), InterWikiHandler), )
 
 
 class InterWikiHandler:
@@ -166,7 +166,7 @@ class InterWikiHandler:
                  break
 
          if result is None :
-             result = "*InterwikiLink*: '%s/%s' " % (insToken.value , params)
+             result = "*InterwikiLink not found*: '%s/%s' " % (insToken.value , params)
 
          return result
 
