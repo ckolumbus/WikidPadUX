@@ -246,7 +246,9 @@ def actionHeading(s, l, st, t):
 
 headingEnd = buildRegex(ur"\n")
 
-heading = buildRegex(ur"^\+{1,15}(?!\+)") + Optional(buildRegex(ur" ")) + \
+# original header definition      :  ur"^\+{1,15}(?!\+)"
+# heading support for "#" and "+" :  ur"^(([\+#]){1,15})(?!$2)"
+heading = buildRegex(ur"^([\+#]){1,15}(?!$1)") + Optional(buildRegex(ur" ")) + \
         headingContent + headingEnd
 heading = heading.setResultsNameNoCopy("heading").setParseAction(actionHeading)
 
